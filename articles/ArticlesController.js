@@ -69,4 +69,95 @@ router.post("/articles/delete", (req, res) => {
   }
 });
 
+router.get("/admin/articles/edit/:id", (req, res) => {
+  const id = req.params.id;
+
+  if (id !== undefined && !isNaN(id)) {
+    Article.findByPk(id)
+      .then((article) => {
+        if (article !== undefined) {
+          Category.findAll().then((categories) => {
+            res.render("admin/articles/edit", {
+              article: article,
+              categories: categories,
+            });
+          });
+        } else {
+          res.redirect("/admin/articles");
+        }
+      })
+      .catch((err) => {
+        console.log("Error while editing article: " + err);
+        res.redirect("/admin/articles");
+      });
+  } else {
+    res.redirect("/admin/articles");
+  }
+});
+
+router.post("/articles/update", (req, res) => {
+  const id = req.body.id;
+  const title = req.body.title;
+  const body = req.body.body;
+  const category = req.body.category;
+
+  Article.update(
+    {
+      title: title,
+      slug: slugify(title, { lower: true }),
+      body: body,
+      categoryId: category,
+    },
+    { where: { id: id } }
+  )
+    .then(() => {
+      res.redirect("/admin/articles");
+    })
+    .catch((err) => {
+      console.log("Error while updating article: " + err);
+      res.redirect("/admin/articles");
+    });
+});
+
+router.get("/articles/page/:num", (req, res) => {
+  const page = parseInt(req.params.num);
+  let offset = (page - 1) * 4;
+
+  if (isNaN(page) || page == 0) {
+    offset = 0;
+  }
+
+  Article.findAndCountAll({
+    limit: 4,
+    offset: offset,
+    order: [["id", "DESC"]],
+  })
+    .then((articles) => {
+      let next;
+
+      if (offset + 4 >= articles.count) {
+        next = false;
+      } else {
+        next = true;
+      }
+
+      const result = {
+        page: page,
+        next: next,
+        articles: articles,
+      };
+
+      Category.findAll().then((categories) => {
+        res.render("admin/articles/page", {
+          result: result,
+          categories: categories,
+        });
+      });
+    })
+    .catch((err) => {
+      console.log("Error while listing articles: " + err);
+      res.redirect("/admin/articles");
+    });
+});
+
 module.exports = router;

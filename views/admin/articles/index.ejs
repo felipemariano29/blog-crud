@@ -4,7 +4,7 @@
   <%- include ("../../partials/navbar.ejs") %>
 
   <div class="container">
-    <h2 class="mb-5 mt-5">Categorias</h2>
+    <h2 class="mb-5 mt-5">Artigos</h2>
 
     <a href="/admin/articles/new" class="btn btn-success mb-5">Novo artigo</a>
 
@@ -35,6 +35,12 @@
           <td><%= article.category.title %></td>
 
           <td>
+            <a
+              href="/admin/articles/edit/<%= article.id %>"
+              class="btn btn-warning"
+              >Editar</a
+            >
+
             <form
               method="POST"
               action="/articles/delete"
