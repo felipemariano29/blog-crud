@@ -1,10 +1,18 @@
+// Imports
 require("dotenv").config();
-
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const connection = require("./database/database");
-const port = 8082;
+const port = 8080;
+
+// Controllers
+const categoriesController = require("./categories/CategoriesController");
+const articlesController = require("./articles/ArticlesController");
+
+// Models
+const Category = require("./categories/Category");
+const Article = require("./articles/Article");
 
 // View engine
 app.set("view engine", "ejs");
@@ -20,16 +28,17 @@ app.use(bodyParser.json());
 connection
   .authenticate()
   .then(() => {
-    console.log("Conexão com banco de dados feita com sucesso");
+    console.log("Database connected with success!");
   })
   .catch((err) => {
-    console.log("Erro no banco de dados: " + err);
+    console.log("Error on database: " + err);
   });
 
-app.get("/", (req, res) => {
-  res.render("index");
-});
+// Routes
+app.use("/", categoriesController);
 
-app.listen(port, () => {
-  console.log("Rodando na porta: " + port);
-});
+app.use("/", articlesController);
+
+app.get("/", (req, res) => res.render("index"));
+
+app.listen(port, () => console.log("Running on port: " + port));
