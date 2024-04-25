@@ -4,7 +4,7 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const connection = require("./database/database");
-const port = 8080;
+const port = 8081;
 
 // Controllers
 const categoriesController = require("./categories/CategoriesController");
